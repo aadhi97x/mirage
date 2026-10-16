@@ -6,6 +6,8 @@ DATATHON 2026 · Track: **The Money Leak** · Team **LARP** (Adhidev Jayaraj, Ca
 
 ![Overview](docs/screenshots/01-overview.png)
 
+**Three models trained from scratch on the track dataset** (scikit-learn, no pretrained weights, no external API): a gradient-boosting baseline for weekly orders, an Isolation Forest for unusual products, and a T-learner uplift model for discounts. [Details and results below](#our-models-trained-from-scratch-in-this-repo) · train them with `python train.py`.
+
 ## The problem
 Businesses rarely lose money in one obvious hole. They lose it in places that *look* healthy: ad campaigns that report thousands of conversions, discounts that feel like marketing, products that sell well but quietly lose margin. Sales, returns, discounts, stock and campaign data sit in separate tables, so nobody checks whether the headline is backed by the records.
 
@@ -34,15 +36,32 @@ Data health, join checks and the trained models:
 ![Data and models](docs/screenshots/04-data-and-models.png)
 
 ## Our models (trained from scratch, in this repo)
-All three are scikit-learn models trained on the track's own files, with fixed seeds, on CPU only. No pretrained weights and no external API are used for any result.
+All three are trained on the track's own files (`data/*.csv`) with fixed seeds (`SEED = 7`), on CPU only. Code: [`ml.py`](ml.py). No pretrained weights and no external API are used for any result.
 
-| # | Model | What it does | Result on the dataset |
-|---|---|---|---|
-| 1 | Gradient boosting (`HistGradientBoostingRegressor`) | learns weekly orders from spend, discount and season on the first 25 weeks, tested on the last 26 | error 13.0 orders/week vs 11.8 for a plain average, R² −0.21: no better than the average, so spend does not predict orders |
-| 2 | Isolation Forest | scores all 250 products by how unusual their behaviour is (no labels needed) | ranked list with the feature that made each product stand out |
-| 3 | T-learner uplift (two gradient-boosting models) | estimates extra units per order from a 15–25% discount on held-out orders | −0.016 units per order (95% interval −0.027 to −0.005) against a baseline of 3.01, i.e. about zero |
+### 1. Gradient boosting: "what should weekly orders look like?"
+- **Task:** regression. Predict weekly completed orders.
+- **Model:** `HistGradientBoostingRegressor` (depth 3, 80 iterations, learning rate 0.05).
+- **Features:** weekly campaign spend, average discount depth, week of year.
+- **Training / test:** first 25 full weeks train, last 26 weeks test (time-ordered, no shuffling). Partial edge weeks are dropped.
+- **Compared against:** a plain "predict the training average" baseline. Spend importance is measured with permutation importance (200 repeats).
+- **Result:** error 13.0 orders/week vs 11.8 for the plain average, R² −0.21. The model does **not** beat the average, so spend, discount and season do not predict orders here. That supports the finding that ad spend is not visibly tied to sales.
 
-The verdicts also use permutation tests, bootstrap intervals, Bonferroni correction and rule thresholds learned on Q1–Q2 and applied to Q3–Q4 (`traps.py`). There are no labels in the dataset, so we claim no accuracy or precision: the models are evidence layers, not verified leak detectors, and weak results are reported as weak.
+### 2. Isolation Forest: "which products behave unusually?"
+- **Task:** unsupervised anomaly detection (the dataset has no labels).
+- **Model:** `IsolationForest` (300 trees) on standardised product features.
+- **Features:** orders, net sales, average discount, cancel+return rate, share of orders below cost, margin proxy (250 products, each with 20+ orders).
+- **Output:** an anomaly score per product plus the feature that made it stand out most (`product_anomaly_scores.csv`).
+- **Reading it:** "unusual" is not "leaking". It is a list of products worth a closer look; the app shows the top 10 on the Data page.
+
+### 3. T-learner uplift: "do deep discounts actually sell more?"
+- **Task:** estimate the extra units per order caused by a 15–25% discount.
+- **Model:** two `HistGradientBoostingRegressor`s, one fitted on discounted orders and one on undiscounted orders. The uplift for an order is the difference between their predictions.
+- **Features:** category, list price, region, customer segment, channel, payment method, month.
+- **Training / test:** random 50/50 split of completed orders; uplift is estimated on the held-out half, with a bootstrap 95% interval.
+- **Result:** −0.016 units per order (95% interval −0.027 to −0.005) against a baseline of 3.01 units, which is effectively zero. Orders were not randomly assigned discounts, so this is association, not proven cause.
+
+### How the models are used
+They sit next to the statistical tests as extra evidence: the baseline and uplift results appear in the evidence ledger of the Campaigns and Discounting investigations, and all three are summarised on the **Data** page. The verdicts also use permutation tests, bootstrap intervals, Bonferroni correction and rule thresholds learned on Q1–Q2 and applied to Q3–Q4 (`traps.py`). There are no labels in the dataset, so we claim no accuracy or precision: these are evidence layers, not verified leak detectors, and weak results are reported as weak.
 
 **Reproduce the training:**
 ```bash
@@ -71,7 +90,7 @@ The five track files are in [`data/`](data/) (`customers`, `products`, `transact
 | Item | Declaration |
 |---|---|
 | External APIs | **None.** The app makes no API calls to any hosted AI or data service. |
-| Pretrained models | **None are used for any result.** One *optional* pretrained open-source LLM (default `qwen2.5:7b`, run locally through [Ollama](https://ollama.com)) can phrase the already-computed facts as plain-language text. It receives only those facts, never raw rows, and never computes or changes a number. Without Ollama the app shows plain template text. |
+| Pretrained models | **None are used for any result.** One *optional* pretrained open-source LLM (default `qwen2.5:7b`, run locally through [Ollama](https://ollama.com)) can phrase the already-computed facts as plain-language text. It receives only the already computed results. Without Ollama the app works the same way but the results are shown in plain template text. |
 | Extra datasets | **None.** Only the five track files. |
 | Fonts | The page loads Inter and Instrument Serif from Google Fonts (CSS only), with system-font fallbacks. |
 | Libraries | streamlit, pandas, numpy, plotly, jinja2, scikit-learn |
