@@ -1,0 +1,96 @@
+{
+  "seed": 7,
+  "baseline_gradient_boosting": {
+    "weeks": 51,
+    "train_weeks": 25,
+    "test_weeks": 26,
+    "mae_model": 12.976084412202407,
+    "mae_naive": 11.812307692307687,
+    "r2": -0.2149719799391372,
+    "beats_naive": false,
+    "spend_importance": -0.37953577737094074,
+    "spend_importance_sd": 0.6680790118256378,
+    "resid_mean": 4.051515937340938,
+    "resid_ci": [
+      -2.0582868201573103,
+      10.23290753694581
+    ]
+  },
+  "isolation_forest": {
+    "products_scored": 250,
+    "top_10": [
+      {
+        "product_id": "PR0013",
+        "anomaly_score": 0.6032430757132297,
+        "most_unusual_on": "orders",
+        "direction": "high"
+      },
+      {
+        "product_id": "PR0189",
+        "anomaly_score": 0.5958037780952542,
+        "most_unusual_on": "bad_rate",
+        "direction": "high"
+      },
+      {
+        "product_id": "PR0146",
+        "anomaly_score": 0.5942918114829897,
+        "most_unusual_on": "margin",
+        "direction": "high"
+      },
+      {
+        "product_id": "PR0127",
+        "anomaly_score": 0.5704854329008802,
+        "most_unusual_on": "orders",
+        "direction": "high"
+      },
+      {
+        "product_id": "PR0211",
+        "anomaly_score": 0.5697370470474977,
+        "most_unusual_on": "avg_discount",
+        "direction": "high"
+      },
+      {
+        "product_id": "PR0037",
+        "anomaly_score": 0.5658741898340615,
+        "most_unusual_on": "margin",
+        "direction": "low"
+      },
+      {
+        "product_id": "PR0163",
+        "anomaly_score": 0.5649037776866301,
+        "most_unusual_on": "avg_discount",
+        "direction": "high"
+      },
+      {
+        "product_id": "PR0200",
+        "anomaly_score": 0.55670392329976,
+        "most_unusual_on": "bad_rate",
+        "direction": "low"
+      },
+      {
+        "product_id": "PR0205",
+        "anomaly_score": 0.5539242222620329,
+        "most_unusual_on": "avg_discount",
+        "direction": "low"
+      },
+      {
+        "product_id": "PR0246",
+        "anomaly_score": 0.5536855492156373,
+        "most_unusual_on": "avg_discount",
+        "direction": "high"
+      }
+    ]
+  },
+  "uplift_t_learner": {
+    "n_treated": 4260,
+    "n_control": 4804,
+    "mean_uplift": -0.01590821425109285,
+    "ci": [
+      -0.02722953284105044,
+      -0.005210317081637161
+    ],
+    "naive_diff": 0.0007177117660166488,
+    "sd": 0.37523631787720735,
+    "control_mean": 3.0056203164029975
+  }
+}
