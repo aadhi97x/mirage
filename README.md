@@ -2,7 +2,7 @@
 
 **Looks good on paper. Does it hold up?** An evidence-led review that sets a business's reported numbers against its raw records, tests whether a suspicious pattern is real, and says what to verify next.
 
-DATATHON 2026 · Track: **The Money Leak** · Team **LARP** (Adhidev Jayaraj, Cavan J Paul, Emlin)
+DATATHON 2026 · Track: **The Money Leak** · Team **LARP** (Adhidev Jayaraj, Cavan J Paul)
 
 ![Overview](docs/screenshots/01-overview.png)
 
