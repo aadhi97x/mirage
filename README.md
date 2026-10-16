@@ -128,4 +128,11 @@ docs/         screenshots, sample outputs, slide content
 ```
 
 ## Limitations
-Synthetic data; observational, so association not cause; campaigns have no order key; costs unreliable so margin is a proxy; models are small and unvalidated because no reviewed labels exist. The tool supports decisions; it does not make them.
+### Limitations
+
+- **Synthetic data:** The current dataset is synthetic and may not fully represent real-world business conditions.
+- **Correlation, not causation:** The analysis is observational. Identified relationships should not be interpreted as evidence of cause and effect.
+- **Campaign attribution:** Campaigns lack a reliable order-level attribution key, limiting the ability to connect individual campaigns to specific purchases.
+- **Profitability estimates:** Cost data may be incomplete or unreliable, so estimated margins should be treated as proxies rather than definitive financial measurements.
+- **Model validation:** Models are relatively small and have not been validated against reviewed ground-truth labels, as such labels are not currently available.
+- **Decision support:** Mirage provides analytical insights to inform human decisions; it does not replace human judgment or make decisions autonomously.
